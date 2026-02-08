@@ -1,0 +1,18 @@
+{
+    "token": "YOUR_BOT_TOKEN",
+    "clientId": "YOUR_CLIENT_ID",
+    "guildId": "YOUR_GUILD_ID",
+    "ticketPanelChannelId": "TICKET_PANEL_CHANNEL_ID",
+    "ticketCategoryId": "TICKET_CATEGORY_ID",
+    "ticketLogChannelId": "TICKET_LOG_CHANNEL_ID",
+    "supportRoleId": "SUPPORT_ROLE_ID",
+    "homeChannelId": "HOME_CHANNEL_ID",
+    "partnerChannelId": "PARTNER_CHANNEL_ID",
+    "ticketNaming": "number",
+    "ticketCooldown": 3600,
+    "timeoutWarningHours": 24,
+    "timeoutAutoCloseHours": 48,
+    "embedColor": "#5865F2",
+    "embedFooter": "Speaw Ticket System",
+    "embedImage": ""
+}

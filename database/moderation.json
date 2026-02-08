@@ -1,0 +1,17 @@
+{
+    "1264149136664428616": {
+        "actions": [
+            {
+                "caseNumber": 1,
+                "type": "warn",
+                "userId": "889426201159016479",
+                "moderator": {
+                    "id": "997689430993272852",
+                    "username": "itzsteveefr."
+                },
+                "reason": "idk",
+                "timestamp": "2026-02-08T11:21:41.567Z"
+            }
+        ]
+    }
+}

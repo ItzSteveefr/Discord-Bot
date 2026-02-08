@@ -1,0 +1,135 @@
+{
+    "general": {
+        "name": "General Support",
+        "emoji": "📋",
+        "color": "#5865F2",
+        "description": "General questions and help requests",
+        "modalTitle": "General Support Request",
+        "modalFields": [
+            {
+                "id": "subject",
+                "label": "Subject",
+                "placeholder": "Briefly describe your issue...",
+                "type": "short",
+                "required": true,
+                "maxLength": 100
+            },
+            {
+                "id": "description",
+                "label": "Detailed Description",
+                "placeholder": "Describe your issue in detail...",
+                "type": "paragraph",
+                "required": true,
+                "maxLength": 1000
+            }
+        ]
+    },
+    "technical": {
+        "name": "Technical Support",
+        "emoji": "🔧",
+        "color": "#ED4245",
+        "description": "Technical issues and bugs",
+        "modalTitle": "Technical Support Request",
+        "modalFields": [
+            {
+                "id": "product",
+                "label": "Product/Service Name",
+                "placeholder": "Which product or service is this about?",
+                "type": "short",
+                "required": true,
+                "maxLength": 100
+            },
+            {
+                "id": "issue",
+                "label": "Issue Details",
+                "placeholder": "Describe the issue you're experiencing in detail...",
+                "type": "paragraph",
+                "required": true,
+                "maxLength": 1000
+            },
+            {
+                "id": "steps",
+                "label": "Steps Tried (Optional)",
+                "placeholder": "What have you tried to fix the issue?",
+                "type": "paragraph",
+                "required": false,
+                "maxLength": 500
+            }
+        ]
+    },
+    "presales": {
+        "name": "Pre-Sales",
+        "emoji": "💰",
+        "color": "#57F287",
+        "description": "Pre-purchase questions",
+        "modalTitle": "Pre-Sales Question",
+        "modalFields": [
+            {
+                "id": "product",
+                "label": "Product/Service of Interest",
+                "placeholder": "Which product or service are you interested in?",
+                "type": "short",
+                "required": true,
+                "maxLength": 100
+            },
+            {
+                "id": "questions",
+                "label": "Your Questions",
+                "placeholder": "Write your pre-purchase questions...",
+                "type": "paragraph",
+                "required": true,
+                "maxLength": 1000
+            }
+        ]
+    },
+    "complaint": {
+        "name": "Complaint",
+        "emoji": "⚠️",
+        "color": "#FEE75C",
+        "description": "Complaints and feedback",
+        "modalTitle": "Complaint Report",
+        "modalFields": [
+            {
+                "id": "subject",
+                "label": "Complaint Subject",
+                "placeholder": "Briefly summarize your complaint...",
+                "type": "short",
+                "required": true,
+                "maxLength": 100
+            },
+            {
+                "id": "details",
+                "label": "Detailed Description",
+                "placeholder": "Describe your complaint in detail...",
+                "type": "paragraph",
+                "required": true,
+                "maxLength": 1000
+            }
+        ]
+    },
+    "other": {
+        "name": "Other",
+        "emoji": "📝",
+        "color": "#9B59B6",
+        "description": "Other topics",
+        "modalTitle": "Other Request",
+        "modalFields": [
+            {
+                "id": "subject",
+                "label": "Subject",
+                "placeholder": "Briefly describe your request...",
+                "type": "short",
+                "required": true,
+                "maxLength": 100
+            },
+            {
+                "id": "description",
+                "label": "Description",
+                "placeholder": "Describe your request in detail...",
+                "type": "paragraph",
+                "required": true,
+                "maxLength": 1000
+            }
+        ]
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "1264149136664428616": {
+        "889426201159016479": [
+            {
+                "id": "mld9zlmhch4oc9dbh9",
+                "guildId": "1264149136664428616",
+                "userId": "889426201159016479",
+                "moderatorId": "997689430993272852",
+                "reason": "Blacks Are not allowed in this server",
+                "timestamp": 1770526876985,
+                "active": false,
+                "clearedBy": "997689430993272852",
+                "clearedAt": 1770536061742
+            },
+            {
+                "id": "mldd20bxxf37x5emvtk",
+                "guildId": "1264149136664428616",
+                "userId": "889426201159016479",
+                "moderatorId": "997689430993272852",
+                "reason": "idk",
+                "timestamp": 1770532028205,
+                "active": false,
+                "clearedBy": "997689430993272852",
+                "clearedAt": 1770536061742
+            },
+            {
+                "id": "mldnkt70untk2ed7z0f",
+                "guildId": "1264149136664428616",
+                "userId": "889426201159016479",
+                "moderatorId": "997689430993272852",
+                "reason": "idk",
+                "timestamp": 1770549701580,
+                "active": true
+            }
+        ]
+    }
+}

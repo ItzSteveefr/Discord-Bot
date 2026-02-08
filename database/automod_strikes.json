@@ -1,0 +1,32 @@
+{
+    "1264149136664428616:1026499245014011944": {
+        "count": 4,
+        "lastStrike": 1770545439308,
+        "history": [
+            {
+                "time": 1770545312660,
+                "amount": 1,
+                "reason": "antiinvite: Discord invite links are not allowed here.",
+                "module": "antiinvite"
+            },
+            {
+                "time": 1770545318311,
+                "amount": 1,
+                "reason": "antiinvite: Discord invite links are not allowed here.",
+                "module": "antiinvite"
+            },
+            {
+                "time": 1770545319513,
+                "amount": 1,
+                "reason": "antiinvite: Discord invite links are not allowed here.",
+                "module": "antiinvite"
+            },
+            {
+                "time": 1770545439307,
+                "amount": 1,
+                "reason": "antiinvite: Discord invite links are not allowed here.",
+                "module": "antiinvite"
+            }
+        ]
+    }
+}
