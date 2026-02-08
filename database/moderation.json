@@ -10,8 +10,29 @@
                     "username": "itzsteveefr."
                 },
                 "reason": "idk",
-                "timestamp": "2026-02-08T11:21:41.567Z"
+                "timestamp": "2026-02-08T12:04:08.864Z"
+            },
+            {
+                "id": 1,
+                "type": "lock",
+                "channelId": "1264149136664428619",
+                "moderator": {
+                    "id": "997689430993272852"
+                },
+                "reason": "No reason provided",
+                "timestamp": 1770552299291
+            },
+            {
+                "id": 2,
+                "type": "lock",
+                "channelId": "1264149136664428619",
+                "moderator": {
+                    "id": "997689430993272852"
+                },
+                "reason": "No reason provided",
+                "timestamp": 1770552337776
             }
-        ]
+        ],
+        "cases": 2
     }
 }

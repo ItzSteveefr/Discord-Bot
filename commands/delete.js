@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { ContainerBuilder, SeparatorSpacingSize } = require('../utils/componentBuilders.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ContainerBuilder, SeparatorSpacingSize, MessageFlags } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -42,11 +41,10 @@ module.exports = {
         if (!interaction.channel.permissionsFor(interaction.guild.members.me).has(PermissionFlagsBits.ManageMessages)) {
             container.addTextDisplayComponents(td => td.setContent(`# ❌ Missing Permissions`));
             container.addTextDisplayComponents(td => td.setContent(`I need **Manage Messages** permission to execute this.`));
-            const errData = container.toJSON();
-            return interaction.reply({ embeds: errData.embeds, components: errData.components, ephemeral: true });
+            return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
         }
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         try {
             const messages = await interaction.channel.messages.fetch({ limit: 100 });
@@ -77,8 +75,7 @@ module.exports = {
             if (toDelete.length === 0) {
                 container.addTextDisplayComponents(td => td.setContent(`# ⚠️ No Messages Found`));
                 container.addTextDisplayComponents(td => td.setContent(`No matching messages found to delete.`));
-                const errData = container.toJSON();
-                return interaction.editReply({ embeds: errData.embeds, components: errData.components });
+                return interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
             }
 
             await interaction.channel.bulkDelete(toDelete, true);
@@ -93,15 +90,14 @@ module.exports = {
             container.addTextDisplayComponents(td => td.setContent(info));
             container.addTextDisplayComponents(td => td.setContent(`**UnderFive Studios** | <t:${Math.floor(Date.now() / 1000)}:R>`));
 
-            const data = container.toJSON();
-            await interaction.editReply({ embeds: data.embeds, components: data.components });
+            await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
 
         } catch (error) {
             console.error(error);
             container.addTextDisplayComponents(td => td.setContent(`# ❌ Error`));
             container.addTextDisplayComponents(td => td.setContent(`An error occurred: ${error.message}`));
-            const errData = container.toJSON();
-            await interaction.editReply({ embeds: errData.embeds, components: errData.components });
+            await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
         }
     }
 };
+

@@ -231,6 +231,32 @@
                     "maxLevel": 0,
                     "minAge": 0,
                     "minStay": 0
+                },
+                {
+                    "giveawayId": "1770552324920_913545",
+                    "messageId": "1470027741242986566",
+                    "channelId": "1264149136664428619",
+                    "guildId": "1264149136664428616",
+                    "hostId": "997689430993272852",
+                    "prize": "dih",
+                    "description": null,
+                    "winnerCount": 2,
+                    "entries": [
+                        "997689430993272852"
+                    ],
+                    "winners": [],
+                    "startTime": 1770552324920,
+                    "endTime": 1770559524920,
+                    "ended": false,
+                    "color": null,
+                    "thumbnail": null,
+                    "image": null,
+                    "requiredRoles": [],
+                    "winnerRoles": [],
+                    "minLevel": 0,
+                    "maxLevel": 0,
+                    "minAge": 0,
+                    "minStay": 0
                 }
             ]
         }

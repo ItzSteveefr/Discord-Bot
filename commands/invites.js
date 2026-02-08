@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { ContainerBuilder, SectionBuilder, TextDisplayBuilder, SeparatorBuilder, SeparatorSpacingSize } = require('../utils/componentBuilders.js');
+const { SlashCommandBuilder, ContainerBuilder, SectionBuilder, TextDisplayBuilder, SeparatorBuilder, SeparatorSpacingSize, MessageFlags } = require('discord.js');
 const inviteDb = require('../database/inviteDb.js');
 
 module.exports = {
@@ -49,14 +48,15 @@ module.exports = {
         container.addSectionComponents(section => {
             section.addTextDisplayComponents(td => td.setContent(statsText));
             section.setThumbnailAccessory(thumb => thumb.setURL(targetUser.displayAvatarURL({ dynamic: true })));
+            return section;
         });
 
         container.addTextDisplayComponents(td => td.setContent(`**UnderFive Studios** | <t:${Math.floor(Date.now() / 1000)}:R>`));
 
-        const data = container.toJSON();
         await interaction.reply({
-            embeds: data.embeds,
-            components: data.components
+            components: [container],
+            flags: MessageFlags.IsComponentsV2
         });
     }
 };
+

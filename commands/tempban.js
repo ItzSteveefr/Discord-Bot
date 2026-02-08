@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { ContainerBuilder, SeparatorSpacingSize } = require('../utils/componentBuilders.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ContainerBuilder, SeparatorSpacingSize, MessageFlags } = require('discord.js');
 const moderationDb = require('../database/moderationDb.js');
 
 function parseTime(timeStr) {
@@ -50,8 +49,7 @@ module.exports = {
         if (!duration) {
             container.addTextDisplayComponents(td => td.setContent(`# ❌ Invalid Duration`));
             container.addTextDisplayComponents(td => td.setContent(`Please use format like 1h, 30m, 1d.`));
-            const errData = container.toJSON();
-            return interaction.reply({ embeds: errData.embeds, components: errData.components, ephemeral: true });
+            return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
         }
 
         try {
@@ -66,8 +64,7 @@ module.exports = {
                 if (member.roles.highest.position >= interaction.member.roles.highest.position && interaction.user.id !== interaction.guild.ownerId) {
                     container.addTextDisplayComponents(td => td.setContent(`# ❌ Hierarchy Error`));
                     container.addTextDisplayComponents(td => td.setContent(`You cannot ban ${targetUser} because their role is equal or higher than yours.`));
-                    const errData = container.toJSON();
-                    return interaction.reply({ embeds: errData.embeds, components: errData.components, ephemeral: true });
+                    return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
                 }
             }
 
@@ -98,15 +95,14 @@ module.exports = {
             container.addTextDisplayComponents(td => td.setContent(`**User:** ${targetUser}\n**Duration:** ${durationStr}\n**Reason:** ${reason}`));
             container.addTextDisplayComponents(td => td.setContent(`**UnderFive Studios** | <t:${Math.floor(Date.now() / 1000)}:R>`));
 
-            const data = container.toJSON();
-            await interaction.reply({ embeds: data.embeds, components: data.components });
+            await interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
 
         } catch (error) {
             console.error(error);
             container.addTextDisplayComponents(td => td.setContent(`# ❌ Error`));
             container.addTextDisplayComponents(td => td.setContent(`An error occurred: ${error.message}`));
-            const errData = container.toJSON();
-            await interaction.reply({ embeds: errData.embeds, components: errData.components, ephemeral: true });
+            await interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
         }
     }
 };
+

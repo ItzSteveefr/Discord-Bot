@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { ContainerBuilder, SeparatorSpacingSize } = require('../utils/componentBuilders.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ContainerBuilder, SeparatorSpacingSize, MessageFlags } = require('discord.js');
 const moderationDb = require('../database/moderationDb.js');
 
 module.exports = {
@@ -90,8 +89,7 @@ module.exports = {
                         .addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
                         .addTextDisplayComponents(td => td.setContent(`This channel has been locked.\n**Reason:** ${reason}`));
 
-                    const notifData = notif.toJSON();
-                    await targetChannel.send({ embeds: notifData.embeds, components: notifData.components }).catch(() => { });
+                    await targetChannel.send({ components: [notif], flags: MessageFlags.IsComponentsV2 }).catch(() => { });
 
                 } else {
                     await targetChannel.permissionOverwrites.edit(everyoneRole, { SendMessages: null });
@@ -105,12 +103,10 @@ module.exports = {
                         .addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
                         .addTextDisplayComponents(td => td.setContent(`This channel has been unlocked.\n**Reason:** ${reason}`));
 
-                    const notifData = notif.toJSON();
-                    await targetChannel.send({ embeds: notifData.embeds, components: notifData.components }).catch(() => { });
+                    await targetChannel.send({ components: [notif], flags: MessageFlags.IsComponentsV2 }).catch(() => { });
                 }
 
-                const data = container.toJSON();
-                await interaction.reply({ embeds: data.embeds, components: data.components });
+                await interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
 
                 moderationDb.addAction(interaction.guild.id, {
                     type: state === 'lock' ? 'lock' : 'unlock',
@@ -158,8 +154,7 @@ module.exports = {
             container.addTextDisplayComponents(td => td.setContent(`# ${state === 'lock' ? '🔒' : '🔓'} Server ${state === 'lock' ? 'Lockdown' : 'Unlocked'}`));
             container.addTextDisplayComponents(td => td.setContent(`Processed **${count}** channels.\n**Reason:** ${reason}`));
 
-            const data = container.toJSON();
-            await interaction.editReply({ embeds: data.embeds, components: data.components });
+            await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
 
         } else if (subcommand === 'ignore') {
             const action = interaction.options.getString('action');
@@ -168,8 +163,7 @@ module.exports = {
                 const ignored = moderationDb.getLockIgnores(interaction.guild.id);
                 container.addTextDisplayComponents(td => td.setContent(`# 🛡️ Ignored Channels`));
                 container.addTextDisplayComponents(td => td.setContent(ignored.length ? ignored.map(id => `<#${id}>`).join('\n') : 'No channels ignored.'));
-                const data = container.toJSON();
-                return interaction.reply({ embeds: data.embeds, components: data.components });
+                return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
             }
 
             const target = interaction.options.getChannel('channel');
@@ -183,8 +177,8 @@ module.exports = {
                 container.addTextDisplayComponents(td => td.setContent(removed ? `✅ Removed ${target} from ignore list.` : `⚠️ ${target} was not in ignore list.`));
             }
 
-            const data = container.toJSON();
-            await interaction.reply({ embeds: data.embeds, components: data.components });
+            await interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
         }
     }
 };
+
