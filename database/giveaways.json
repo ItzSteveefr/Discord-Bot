@@ -64,10 +64,12 @@
                     "entries": [
                         "997689430993272852"
                     ],
-                    "winners": [],
+                    "winners": [
+                        "997689430993272852"
+                    ],
                     "startTime": 1770549608382,
                     "endTime": 1770636008382,
-                    "ended": false,
+                    "ended": true,
                     "color": null,
                     "thumbnail": null,
                     "image": null,
@@ -90,10 +92,12 @@
                     "entries": [
                         "997689430993272852"
                     ],
-                    "winners": [],
+                    "winners": [
+                        "997689430993272852"
+                    ],
                     "startTime": 1770551171431,
                     "endTime": 1770558371431,
-                    "ended": false,
+                    "ended": true,
                     "color": null,
                     "thumbnail": null,
                     "image": null,
@@ -116,10 +120,12 @@
                     "entries": [
                         "997689430993272852"
                     ],
-                    "winners": [],
+                    "winners": [
+                        "997689430993272852"
+                    ],
                     "startTime": 1770551171427,
                     "endTime": 1770558371427,
-                    "ended": false,
+                    "ended": true,
                     "color": null,
                     "thumbnail": null,
                     "image": null,
@@ -142,10 +148,12 @@
                     "entries": [
                         "997689430993272852"
                     ],
-                    "winners": [],
+                    "winners": [
+                        "997689430993272852"
+                    ],
                     "startTime": 1770551198249,
                     "endTime": 1770558398249,
-                    "ended": false,
+                    "ended": true,
                     "color": null,
                     "thumbnail": null,
                     "image": null,
@@ -197,7 +205,7 @@
                     "winners": [],
                     "startTime": 1770551534505,
                     "endTime": 1770558734505,
-                    "ended": false,
+                    "ended": true,
                     "color": null,
                     "thumbnail": null,
                     "image": null,
@@ -221,7 +229,7 @@
                     "winners": [],
                     "startTime": 1770551534522,
                     "endTime": 1770558734522,
-                    "ended": false,
+                    "ended": true,
                     "color": null,
                     "thumbnail": null,
                     "image": null,

@@ -39,7 +39,26 @@ function updateUserInvites(guildId, userId, inviteData) {
     return data[guildId][userId];
 }
 
+// Save member -> inviter mapping
+function saveMemberInviter(guildId, memberId, inviterId) {
+    const data = readData();
+    if (!data[guildId]) data[guildId] = {};
+    if (!data[guildId].members) data[guildId].members = {};
+
+    data[guildId].members[memberId] = inviterId;
+    writeData(data);
+}
+
+// Get inviter of a member
+function getInviterOf(guildId, memberId) {
+    const data = readData();
+    if (!data[guildId] || !data[guildId].members) return null;
+    return data[guildId].members[memberId];
+}
+
 module.exports = {
     getUserInvites,
-    updateUserInvites
+    updateUserInvites,
+    saveMemberInviter,
+    getInviterOf
 };

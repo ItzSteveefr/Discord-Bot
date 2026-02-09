@@ -6,6 +6,7 @@ const { Client, Collection, Events, GatewayIntentBits, ModalBuilder, TextInputBu
 const config = require('./config.json');
 const { handleButton, handleSelectMenu } = require('./handlers/buttonHandler.js');
 const registerAutomodHandler = require('./handlers/automodHandler.js');
+const registerInviteHandler = require('./handlers/inviteHandler.js');
 const { startTimeoutChecker } = require('./utils/timeoutChecker.js');
 const { createTicketChannel } = require('./utils/ticketUtils.js');
 const db = require('./database/db.js');
@@ -58,6 +59,9 @@ client.once(Events.ClientReady, async readyClient => {
 
     // Register automod handler
     registerAutomodHandler(client);
+
+    // Register invite handler
+    registerInviteHandler(client);
 
     // Restore active giveaways on restart
     try {

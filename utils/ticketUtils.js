@@ -1,10 +1,11 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
+const discordTranscripts = require('discord-html-transcripts');
 const config = require('../config.json');
 const db = require('../database/db.js');
 const categories = require('../categories/categories.json');
 const { getTicketWelcomeMessage, getTicketCreatedLogMessage, getTicketClosedLogMessage } = require('../messages/ticketPanel.js');
 
-// Create ticket channel (Private Thread)
+// Create ticket channel (Text Channel in Category)
 async function createTicketChannel(interaction, category, formData) {
     const { guild, user } = interaction;
 
@@ -21,10 +22,29 @@ async function createTicketChannel(interaction, category, formData) {
     }
 
     try {
-        // Get ticket panel channel
-        const parentChannel = await guild.channels.fetch(config.ticketPanelChannelId);
-        if (!parentChannel) {
-            return { success: false, error: '❌ Ticket panel channel not found!' };
+        // Get category config
+        const categoryConfig = categories[category];
+
+        // Determine which Discord category to use:
+        // 1. Category-specific categoryId (from categories.json)
+        // 2. Fallback to global ticketCategoryId (from config.json)
+        let ticketCategoryId = categoryConfig?.categoryId || config.ticketCategoryId;
+        let ticketCategory = null;
+
+        if (ticketCategoryId) {
+            try {
+                ticketCategory = await guild.channels.fetch(ticketCategoryId);
+            } catch (e) {
+                console.error('Could not fetch ticket category:', e);
+                // Fallback to global category if category-specific one fails
+                if (categoryConfig?.categoryId && config.ticketCategoryId) {
+                    try {
+                        ticketCategory = await guild.channels.fetch(config.ticketCategoryId);
+                    } catch (e2) {
+                        console.error('Could not fetch fallback ticket category:', e2);
+                    }
+                }
+            }
         }
 
         // Ticket number
@@ -32,7 +52,7 @@ async function createTicketChannel(interaction, category, formData) {
 
         let ticketName;
         if (config.ticketNaming === 'category-user') {
-            const categoryName = categories[category]?.name || 'ticket';
+            const categoryName = categoryConfig?.name || 'ticket';
             // Slugify: lowercase, replace spaces with dashes, remove special chars
             const slugCategory = categoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             const slugUser = user.username.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -43,47 +63,67 @@ async function createTicketChannel(interaction, category, formData) {
             ticketName = `ticket-${user.username}`;
         }
 
-        // Create Private Thread
-        const thread = await parentChannel.threads.create({
+        // Build permission overwrites
+        const permissionOverwrites = [
+            // Deny @everyone from viewing
+            {
+                id: guild.id,
+                deny: [PermissionFlagsBits.ViewChannel]
+            },
+            // Allow ticket creator
+            {
+                id: user.id,
+                allow: [
+                    PermissionFlagsBits.ViewChannel,
+                    PermissionFlagsBits.SendMessages,
+                    PermissionFlagsBits.ReadMessageHistory,
+                    PermissionFlagsBits.AttachFiles,
+                    PermissionFlagsBits.EmbedLinks
+                ]
+            }
+        ];
+
+        // Add support role permission if configured
+        if (config.supportRoleId) {
+            permissionOverwrites.push({
+                id: config.supportRoleId,
+                allow: [
+                    PermissionFlagsBits.ViewChannel,
+                    PermissionFlagsBits.SendMessages,
+                    PermissionFlagsBits.ReadMessageHistory,
+                    PermissionFlagsBits.AttachFiles,
+                    PermissionFlagsBits.EmbedLinks,
+                    PermissionFlagsBits.ManageMessages
+                ]
+            });
+        }
+
+        // Create text channel
+        const ticketChannel = await guild.channels.create({
             name: ticketName,
-            type: ChannelType.PrivateThread,
+            type: ChannelType.GuildText,
+            parent: ticketCategory?.id || null,
+            permissionOverwrites: permissionOverwrites,
             reason: `Ticket #${ticketNumber} - ${user.tag}`
         });
 
-        // Add user
-        await thread.members.add(user.id);
-
-        // Add support role members
-        if (config.supportRoleId) {
-            try {
-                const supportRole = await guild.roles.fetch(config.supportRoleId);
-                if (supportRole) {
-                    for (const [memberId] of supportRole.members) {
-                        await thread.members.add(memberId).catch(() => { });
-                    }
-                }
-            } catch (e) {
-                console.error('Error adding support role:', e);
-            }
-        }
-
         // Save to database
-        const ticket = db.createTicket(thread.id, user.id, category, formData, ticketName);
+        const ticket = db.createTicket(ticketChannel.id, user.id, category, formData, ticketName);
 
         // Send welcome message
         const welcomeMessage = getTicketWelcomeMessage(ticket, user, category);
-        await thread.send(welcomeMessage);
+        await ticketChannel.send(welcomeMessage);
 
         // Send to log channel and save message ID
         const logMessageId = await sendTicketCreatedLog(guild, ticket, user);
         if (logMessageId) {
-            db.setLogMessageId(thread.id, logMessageId);
+            db.setLogMessageId(ticketChannel.id, logMessageId);
         }
 
         return {
             success: true,
             ticket: ticket,
-            channel: thread
+            channel: ticketChannel
         };
 
     } catch (error) {
@@ -129,27 +169,37 @@ async function closeTicket(channel, user, rating = null) {
             // User not found, continue without avatar
         }
 
-        // Send final message
+        // Send closing message
         await channel.send({
-            content: `🔒 **Ticket closed** ${user ? `(by <@${user.id}>)` : '(by System)'}`
+            content: `🔒 **Ticket closed** ${user ? `(by <@${user.id}>)` : '(by System)'}\n\n*Generating transcript and closing ticket...*`
         });
 
-        // Archive and lock thread
-        await channel.setLocked(true);
-        await channel.setArchived(true);
+        // Generate transcript before deleting
+        let transcriptAttachment = null;
+        try {
+            transcriptAttachment = await discordTranscripts.createTranscript(channel, {
+                limit: -1, // Fetch all messages
+                filename: `${ticket.ticketName}-transcript.html`,
+                saveImages: true,
+                footerText: `Ticket closed by ${user ? user.tag : 'System'} • {number} message{s} saved`,
+                poweredBy: false
+            });
+        } catch (transcriptError) {
+            console.error('Transcript generation error:', transcriptError);
+        }
 
-        // Get thread URL
-        const threadUrl = `https://discord.com/channels/${channel.guild.id}/${channel.id}`;
-
-        // Edit the log message
+        // Edit the log message and attach transcript
         await editTicketClosedLog(channel.guild, ticket, user, {
             rating,
-            threadUrl,
-            userAvatar
+            userAvatar,
+            transcriptAttachment
         });
 
-        // Remove from database after logging
+        // Remove from database before deleting
         db.closeTicket(channel.id, rating);
+
+        // Delete the channel
+        await channel.delete(`Ticket closed by ${user ? user.tag : 'System'}`);
 
         return { success: true, ticket: ticket };
 
@@ -171,6 +221,12 @@ async function editTicketClosedLog(guild, ticket, closedBy, extra = {}) {
         if (!logMessage) return;
 
         const closedLogMessage = getTicketClosedLogMessage(ticket, closedBy, extra);
+
+        // If we have a transcript, attach it to the edited message
+        if (extra.transcriptAttachment) {
+            closedLogMessage.files = [extra.transcriptAttachment];
+        }
+
         await logMessage.edit(closedLogMessage);
     } catch (error) {
         console.error('Log edit error:', error);
@@ -179,6 +235,12 @@ async function editTicketClosedLog(guild, ticket, closedBy, extra = {}) {
             const logChannel = await guild.channels.fetch(config.ticketLogChannelId);
             if (logChannel) {
                 const closedLogMessage = getTicketClosedLogMessage(ticket, closedBy, extra);
+
+                // If we have a transcript, attach it
+                if (extra.transcriptAttachment) {
+                    closedLogMessage.files = [extra.transcriptAttachment];
+                }
+
                 await logChannel.send(closedLogMessage);
             }
         } catch (e) {
@@ -195,12 +257,21 @@ async function addMemberToTicket(channel, targetUser) {
     }
 
     try {
-        await channel.members.add(targetUser.id);
+        // Add permission overwrite for the user
+        await channel.permissionOverwrites.create(targetUser.id, {
+            ViewChannel: true,
+            SendMessages: true,
+            ReadMessageHistory: true,
+            AttachFiles: true,
+            EmbedLinks: true
+        });
+
         await channel.send({
             content: `✅ <@${targetUser.id}> has been added to the ticket.`
         });
         return { success: true };
     } catch (error) {
+        console.error('Add member error:', error);
         return { success: false, error: '❌ An error occurred while adding the member!' };
     }
 }
@@ -222,64 +293,28 @@ async function removeMemberFromTicket(channel, targetUser, ticket) {
     }
 
     try {
-        // Log before fetch
-        console.log(`[DEBUG] Fetching thread member...`);
+        // Check if user has a permission overwrite on this channel
+        const overwrite = channel.permissionOverwrites.cache.get(targetUser.id);
 
-        // 1. Check if user is actually in the thread
-        try {
-            await channel.members.fetch(targetUser.id);
-        } catch (e) {
-            console.log(`[DEBUG] User not found in thread: ${e.message}`);
+        if (!overwrite) {
             return { success: false, error: '❌ User is not in this ticket!' };
         }
 
-        // 2. Check if user has high permissions (Manage Threads/Admin)
-        // Need to check BOTH guild-level AND channel-level permissions
-        // because users with Manage Threads can ALWAYS see private threads
+        // Check if user has admin permissions (they'd still see the channel)
         try {
             const guildMember = await channel.guild.members.fetch(targetUser.id);
-            
-            // Check guild-level permissions
-            const hasGuildPerms = guildMember.permissions.has('ManageThreads') || 
-                                  guildMember.permissions.has('Administrator');
-            
-            // Check channel-level permissions (this includes permission overrides)
-            const parentChannel = channel.parent;
-            const hasChannelPerms = parentChannel ? 
-                parentChannel.permissionsFor(guildMember).has('ManageThreads') : false;
-            
-            if (hasGuildPerms || hasChannelPerms) {
-                console.log(`[DEBUG] User has Manage Threads or Admin permission - cannot be removed`);
+            if (guildMember.permissions.has('Administrator')) {
                 return {
                     success: false,
-                    error: '⚠️ This user has **Staff Permissions** (Manage Threads or Admin) and will still be able to see this private thread even if removed from the member list.\n\nUsers with Manage Threads permission can always view all private threads.'
+                    error: '⚠️ This user has **Administrator** permission and will still be able to see this channel even if removed.'
                 };
             }
         } catch (e) {
             console.log(`[DEBUG] Could not fetch guild member for permission check: ${e.message}`);
-            // Continue removal anyway
         }
 
-        // 3. Remove using raw REST API (fixes discord.js bug where removal message shows but user stays)
-        console.log(`[DEBUG] Removing member using REST API...`);
-        await channel.client.rest.delete(`/channels/${channel.id}/thread-members/${targetUser.id}`);
-
-        // 4. Verify removal (Optional, but good for debugging)
-        console.log(`[DEBUG] Verifying removal...`);
-        try {
-            // Wait a moment for Discord's API to process
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            const stillMember = await channel.members.fetch(targetUser.id).catch(() => null);
-            if (stillMember) {
-                console.log(`[DEBUG] WARNING: User still found in thread after removal!`);
-                return { success: false, error: '❌ Failed to remove user (Unknown API error).' };
-            } else {
-                console.log(`[DEBUG] SUCCESS: User successfully removed from thread!`);
-            }
-        } catch (e) {
-            console.log(`[DEBUG] Verification check passed (user not found in thread)`);
-        }
+        // Remove the permission overwrite
+        await channel.permissionOverwrites.delete(targetUser.id);
 
         await channel.send({
             content: `➖ <@${targetUser.id}> has been removed from the ticket.`

@@ -274,7 +274,7 @@ function getTicketCreatedLogMessage(ticket, user) {
                     },
                     {
                         type: 10,
-                        content: `### 📋 Details\n\n👤 **User:** <@${ticket.userId}>\n🏷️ **Type:** ${cat.name}\n🧵 **Thread:** <#${ticket.channelId}>\n📅 **Created:** <t:${Math.floor(ticket.createdAt / 1000)}:F>`
+                        content: `### 📋 Details\n\n👤 **User:** <@${ticket.userId}>\n🏷️ **Type:** ${cat.name}\n📁 **Channel:** <#${ticket.channelId}>\n📅 **Created:** <t:${Math.floor(ticket.createdAt / 1000)}:F>`
                     }
                 ]
             }
@@ -294,9 +294,7 @@ function getTicketClosedLogMessage(ticket, closedBy, extra = {}) {
         detailsContent += `\n⭐ **Rating:** ${'⭐'.repeat(extra.rating)}`;
     }
 
-    if (extra.threadUrl) {
-        detailsContent += `\n🔗 **Thread:** [View Closed Thread](${extra.threadUrl})`;
-    }
+    // Channel-based tickets don't have a URL after deletion, so we skip this
 
     return {
         flags: 32768,

@@ -45,11 +45,21 @@ module.exports = {
             `🎁 **Bonus:** ${inviteData.bonus}`
         ].join('\n');
 
+        const recentInvites = inviteData.invited?.slice(-5).reverse() || [];
+        let recentText = '*No recent invites*';
+
+        if (recentInvites.length > 0) {
+            recentText = recentInvites.map(inv => `<@${inv.userId}> — <t:${Math.floor(inv.ts / 1000)}:R>`).join('\n');
+        }
+
         container.addSectionComponents(section => {
             section.addTextDisplayComponents(td => td.setContent(statsText));
             section.setThumbnailAccessory(thumb => thumb.setURL(targetUser.displayAvatarURL({ dynamic: true })));
             return section;
         });
+
+        container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+        container.addTextDisplayComponents(td => td.setContent(`### 👥 Recent Invites\n${recentText}`));
 
         container.addTextDisplayComponents(td => td.setContent(`**UnderFive Studios** | <t:${Math.floor(Date.now() / 1000)}:R>`));
 

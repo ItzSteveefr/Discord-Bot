@@ -1,5 +1,6 @@
 const { StringSelectMenuBuilder, ActionRowBuilder } = require('discord.js');
 const db = require('../../database/db.js');
+const config = require('../../config.json');
 
 module.exports = {
     customId: 'remove_member',
@@ -14,24 +15,35 @@ module.exports = {
             });
         }
 
-        // Get thread members
-        const threadMembers = await interaction.channel.members.fetch();
+        // Get channel permission overwrites (for channel-based tickets)
+        const permissionOverwrites = interaction.channel.permissionOverwrites.cache;
         const members = [];
 
-        for (const [memberId, threadMember] of threadMembers) {
-            // Exclude bot and ticket owner
-            if (memberId === interaction.client.user.id) continue;
-            if (memberId === ticket.userId) continue;
+        for (const [id, overwrite] of permissionOverwrites) {
+            // Skip @everyone role (guild ID)
+            if (id === interaction.guild.id) continue;
 
+            // Skip bot
+            if (id === interaction.client.user.id) continue;
+
+            // Skip ticket owner
+            if (id === ticket.userId) continue;
+
+            // Skip support role
+            if (id === config.supportRoleId) continue;
+
+            // Check if this is a user (not a role)
             try {
-                const user = await interaction.client.users.fetch(memberId);
-                members.push({
-                    label: user.tag,
-                    value: memberId,
-                    description: `ID: ${memberId}`
-                });
+                const user = await interaction.client.users.fetch(id);
+                if (user) {
+                    members.push({
+                        label: user.tag,
+                        value: id,
+                        description: `ID: ${id}`
+                    });
+                }
             } catch (e) {
-                // User not found
+                // Not a user, might be a role - skip it
             }
         }
 

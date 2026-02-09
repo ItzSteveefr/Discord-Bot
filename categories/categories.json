@@ -4,6 +4,7 @@
         "emoji": "📋",
         "color": "#5865F2",
         "description": "General questions and help requests",
+        "categoryId": "",
         "modalTitle": "General Support Request",
         "modalFields": [
             {
@@ -29,6 +30,7 @@
         "emoji": "🔧",
         "color": "#ED4245",
         "description": "Technical issues and bugs",
+        "categoryId": "",
         "modalTitle": "Technical Support Request",
         "modalFields": [
             {
@@ -62,6 +64,7 @@
         "emoji": "💰",
         "color": "#57F287",
         "description": "Pre-purchase questions",
+        "categoryId": "",
         "modalTitle": "Pre-Sales Question",
         "modalFields": [
             {
@@ -87,6 +90,7 @@
         "emoji": "⚠️",
         "color": "#FEE75C",
         "description": "Complaints and feedback",
+        "categoryId": "",
         "modalTitle": "Complaint Report",
         "modalFields": [
             {
@@ -112,6 +116,7 @@
         "emoji": "📝",
         "color": "#9B59B6",
         "description": "Other topics",
+        "categoryId": "",
         "modalTitle": "Other Request",
         "modalFields": [
             {
