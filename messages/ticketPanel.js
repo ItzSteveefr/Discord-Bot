@@ -296,6 +296,10 @@ function getTicketClosedLogMessage(ticket, closedBy, extra = {}) {
 
     // Channel-based tickets don't have a URL after deletion, so we skip this
 
+    if (extra.transcriptUrl) {
+        detailsContent += `\\n💬 **Transcript:** [View Transcript](${extra.transcriptUrl})`;
+    }
+
     return {
         flags: 32768,
         components: [

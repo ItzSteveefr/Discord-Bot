@@ -4,6 +4,7 @@ const config = require('../config.json');
 const db = require('../database/db.js');
 const categories = require('../categories/categories.json');
 const { getTicketWelcomeMessage, getTicketCreatedLogMessage, getTicketClosedLogMessage } = require('../messages/ticketPanel.js');
+const { uploadToGitHub } = require('./githubUpload.js');
 
 // Create ticket channel (Text Channel in Category)
 async function createTicketChannel(interaction, category, formData) {
@@ -171,28 +172,43 @@ async function closeTicket(channel, user, rating = null) {
 
         // Send closing message
         await channel.send({
-            content: `🔒 **Ticket closed** ${user ? `(by <@${user.id}>)` : '(by System)'}\n\n*Generating transcript and closing ticket...*`
+            content: `🔒 **Ticket closed** ${user ? `(by <@${user.id}>)` : '(by System)'}\n\n*Generating transcript and uploading to GitHub...*`
         });
 
-        // Generate transcript before deleting
-        let transcriptAttachment = null;
+        // Generate transcript
+        let transcriptUrl = null;
         try {
-            transcriptAttachment = await discordTranscripts.createTranscript(channel, {
-                limit: -1, // Fetch all messages
-                filename: `${ticket.ticketName}-transcript.html`,
+            // Generate transcript as buffer
+            const transcriptBuffer = await discordTranscripts.createTranscript(channel, {
+                limit: -1,
+                returnType: 'buffer',
                 saveImages: true,
                 footerText: `Ticket closed by ${user ? user.tag : 'System'} • {number} message{s} saved`,
                 poweredBy: false
             });
+
+            // Create filename with timestamp
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `${ticket.ticketName}-${timestamp}.html`;
+
+            // Upload to GitHub
+            const uploadResult = await uploadToGitHub(filename, transcriptBuffer);
+
+            if (uploadResult.success) {
+                transcriptUrl = uploadResult.url;
+                console.log(`✅ Transcript uploaded to GitHub: ${transcriptUrl}`);
+            } else {
+                console.error('Failed to upload transcript to GitHub:', uploadResult.error);
+            }
         } catch (transcriptError) {
             console.error('Transcript generation error:', transcriptError);
         }
 
-        // Edit the log message and attach transcript
+        // Edit the log message with transcript link
         await editTicketClosedLog(channel.guild, ticket, user, {
             rating,
             userAvatar,
-            transcriptAttachment
+            transcriptUrl
         });
 
         // Remove from database before deleting
@@ -221,12 +237,6 @@ async function editTicketClosedLog(guild, ticket, closedBy, extra = {}) {
         if (!logMessage) return;
 
         const closedLogMessage = getTicketClosedLogMessage(ticket, closedBy, extra);
-
-        // If we have a transcript, attach it to the edited message
-        if (extra.transcriptAttachment) {
-            closedLogMessage.files = [extra.transcriptAttachment];
-        }
-
         await logMessage.edit(closedLogMessage);
     } catch (error) {
         console.error('Log edit error:', error);
@@ -235,12 +245,6 @@ async function editTicketClosedLog(guild, ticket, closedBy, extra = {}) {
             const logChannel = await guild.channels.fetch(config.ticketLogChannelId);
             if (logChannel) {
                 const closedLogMessage = getTicketClosedLogMessage(ticket, closedBy, extra);
-
-                // If we have a transcript, attach it
-                if (extra.transcriptAttachment) {
-                    closedLogMessage.files = [extra.transcriptAttachment];
-                }
-
                 await logChannel.send(closedLogMessage);
             }
         } catch (e) {
