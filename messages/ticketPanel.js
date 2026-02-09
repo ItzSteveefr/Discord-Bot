@@ -19,7 +19,7 @@ function getTicketPanelMessage() {
                 components: [
                     {
                         type: 10, // Text Display
-                        content: "## 🎫 Welcome to Speaway Support!\n\nNeed help with your server or have questions about our products? Our support team is here to assist you with any inquiries.\n\n**🕐 Support Hours:**\n• We aim to respond within **24 hours**\n• Priority support for active customers"
+                        content: "## 🎫 Welcome to UnderFive Studio's Support!\n\nNeed help with your server or have questions about our products? Our support team is here to assist you with any inquiries.\n\n**🕐 Support Hours:**\n• We aim to respond within **24 hours**\n• Priority support for active customers"
                     }
                 ]
             },
@@ -202,7 +202,7 @@ function getRatingMessage(ticket = null) {
                 components: [
                     {
                         type: 10, // Text Display
-                        content: `## ⭐ How was your support experience?\n\n${ticket ? `**${ticket.ticketName}** has been closed.\n\n` : ''}Thank you for contacting Speaway Support!\nPlease take a moment to rate your experience.`
+                        content: `## ⭐ How was your support experience?\n\n${ticket ? `**${ticket.ticketName}** has been closed.\n\n` : ''}Thank you for contacting UnderFive Studio's Support!\nPlease take a moment to rate your experience.`
                     },
                     {
                         type: 14, // Separator
@@ -297,7 +297,7 @@ function getTicketClosedLogMessage(ticket, closedBy, extra = {}) {
     // Channel-based tickets don't have a URL after deletion, so we skip this
 
     if (extra.transcriptUrl) {
-        detailsContent += `\\n💬 **Transcript:** [View Transcript](${extra.transcriptUrl})`;
+        detailsContent += `\n💬 **Transcript:** [View Transcript](${extra.transcriptUrl})`;
     }
 
     return {

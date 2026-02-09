@@ -43,19 +43,26 @@ module.exports = {
             // User not found or can't DM
         }
 
-        // Close the ticket
-        await interaction.deferReply({ flags: 64 });
+        // Reply immediately before closing (channel will be deleted)
+        await interaction.reply({
+            content: '🔒 Closing ticket... Generating transcript and uploading to GitHub.',
+            flags: 64
+        });
 
+        // Close the ticket (this deletes the channel, so no editReply after this)
         const result = await closeTicket(interaction.channel, interaction.user, null);
 
-        if (result.success) {
-            await interaction.editReply({
-                content: '✅ Ticket closed successfully!'
-            });
-        } else {
-            await interaction.editReply({
-                content: result.error
-            });
+        // Note: We can't editReply here because the channel (and interaction webhook) is deleted
+        // The success/failure is handled inside closeTicket with channel messages before deletion
+        if (!result.success) {
+            // If it failed, the channel might still exist, try to notify
+            try {
+                await interaction.channel.send({
+                    content: result.error
+                });
+            } catch (e) {
+                // Channel might be deleted or user doesn't have permission
+            }
         }
     }
 };

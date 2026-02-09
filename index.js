@@ -47,7 +47,7 @@ if (fs.existsSync(commandsPath)) {
 // Bot ready event
 client.once(Events.ClientReady, async readyClient => {
     console.log(`\n╔════════════════════════════════════════╗`);
-    console.log(`║     🎫 Speaw Ticket Bot v1.0.0         ║`);
+    console.log(`║     🎫 UnderFive Studio's Bot v1.0.0         ║`);
     console.log(`╠════════════════════════════════════════╣`);
     console.log(`║  Bot: ${readyClient.user.tag.padEnd(30)}   ║`);
     console.log(`║  Commands: ${client.commands.size.toString().padEnd(27)} ║`);
