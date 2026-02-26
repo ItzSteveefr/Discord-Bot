@@ -3,7 +3,7 @@ import pg from 'pg';
 const { Client } = pg;
 
 const client = new Client({
-	connectionString: 'postgresql://neondb_owner:npg_f63rmYDEpoel@ep-fancy-union-a18d3xg2-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+	connectionString: ''
 });
 
 async function testConnection() {
